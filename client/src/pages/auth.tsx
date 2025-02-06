@@ -93,7 +93,7 @@ export default function AuthPage() {
                     name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>اسم المستخدم</FormLabel>
+                        <FormLabel className="text-zinc-100">اسم المستخدم</FormLabel>
                         <FormControl>
                           <Input {...field} className="bg-zinc-900/50 border-zinc-800 text-zinc-100" />
                         </FormControl>
@@ -106,7 +106,7 @@ export default function AuthPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>كلمة المرور</FormLabel>
+                        <FormLabel className="text-zinc-100">كلمة المرور</FormLabel>
                         <FormControl>
                           <Input type="password" {...field} className="bg-zinc-900/50 border-zinc-800 text-zinc-100" />
                         </FormControl>
@@ -120,19 +120,19 @@ export default function AuthPage() {
                       name="role"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>نوع الحساب</FormLabel>
+                          <FormLabel className="text-zinc-100">نوع الحساب</FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
                             <FormControl>
                               <SelectTrigger className="bg-zinc-900/50 border-zinc-800 text-zinc-100">
-                                <SelectValue placeholder="اختر نوع الحساب" />
+                                <SelectValue placeholder="اختر نوع الحساب" className="text-zinc-400" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
-                              <SelectItem value="student">طالب</SelectItem>
-                              <SelectItem value="librarian">صاحب مكتبة</SelectItem>
+                            <SelectContent className="bg-zinc-900 border-zinc-800">
+                              <SelectItem value="student" className="text-zinc-100">طالب</SelectItem>
+                              <SelectItem value="librarian" className="text-zinc-100">صاحب مكتبة</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -152,10 +152,8 @@ export default function AuthPage() {
               <div className="mt-4 text-center">
                 <Button
                   variant="link"
-                  onClick={() =>
-                    setMode(mode === "login" ? "register" : "login")
-                  }
-                  className="text-zinc-400 hover:text-primary"
+                  onClick={() => setMode(mode === "login" ? "register" : "login")}
+                  className="text-zinc-400 hover:text-primary hover:underline"
                 >
                   {mode === "login"
                     ? "ليس لديك حساب؟ سجل الآن"
