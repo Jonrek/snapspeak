@@ -10,10 +10,12 @@ import { textToSpeech } from "@/lib/tts";
 import { Camera, FileAudio, ArrowRight, Wand2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
+import TextProcessor from "@/components/TextProcessor";
 
 export default function Home() {
   const [image, setImage] = useState<File | null>(null);
   const [text, setText] = useState<string>("");
+  const [processedText, setProcessedText] = useState<string>("");
   const [processing, setProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const { toast } = useToast();
@@ -22,14 +24,14 @@ export default function Home() {
   const handleSave = async () => {
     try {
       setProcessing(true);
-      const audio = await textToSpeech(text, (progress) => {
+      const audio = await textToSpeech(processedText || text, (progress) => {
         setProgress(progress);
       });
       const audioUrl = URL.createObjectURL(audio);
 
       await apiRequest("POST", "/api/recordings", {
         title: `التسجيل ${new Date().toLocaleString('ar-SA')}`,
-        originalText: text,
+        originalText: processedText || text,
         audioUrl: audioUrl,
       });
 
@@ -96,6 +98,12 @@ export default function Home() {
                 transition={{ duration: 0.3 }}
                 className="space-y-4"
               >
+                <TextProcessor
+                  text={text}
+                  onProcess={setProcessedText}
+                  disabled={processing}
+                />
+
                 {processing && (
                   <div className="space-y-2">
                     <Progress value={progress} className="bg-zinc-800" />
@@ -104,6 +112,7 @@ export default function Home() {
                     </p>
                   </div>
                 )}
+
                 <Button 
                   className="w-full font-medium text-lg h-12 bg-gradient-to-r from-primary to-orange-500 hover:from-primary/90 hover:to-orange-500/90" 
                   size="lg"

@@ -32,6 +32,40 @@ export function registerRoutes(app: Express) {
     res.status(201).json(recording);
   });
 
+  // Process text
+  app.post("/api/process-text", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "يجب تسجيل الدخول أولاً" });
+    }
+
+    const { text, type } = req.body;
+
+    try {
+      let result = text;
+
+      switch (type) {
+        case "translate":
+          // Add translation logic here
+          result = "تمت الترجمة: " + text;
+          break;
+        case "summarize":
+          // Add summarization logic here
+          result = "ملخص: " + text;
+          break;
+        case "qa":
+          // Add Q&A conversion logic here
+          result = "س: ماذا يقول النص؟\nج: " + text;
+          break;
+        default:
+          result = text;
+      }
+
+      res.json({ result });
+    } catch (error) {
+      res.status(500).json({ error: "حدث خطأ أثناء معالجة النص" });
+    }
+  });
+
   // Delete recording
   app.delete("/api/recordings/:id", async (req, res) => {
     if (!req.isAuthenticated()) {
