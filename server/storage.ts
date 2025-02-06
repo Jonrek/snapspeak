@@ -1,4 +1,6 @@
 import { recordings, type Recording, type InsertRecording } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   getAllRecordings(): Promise<Recording[]>;
@@ -7,38 +9,27 @@ export interface IStorage {
   deleteRecording(id: number): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private recordings: Map<number, Recording>;
-  private currentId: number;
-
-  constructor() {
-    this.recordings = new Map();
-    this.currentId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   async getAllRecordings(): Promise<Recording[]> {
-    return Array.from(this.recordings.values())
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return await db.select().from(recordings).orderBy(recordings.createdAt);
   }
 
   async getRecording(id: number): Promise<Recording | undefined> {
-    return this.recordings.get(id);
+    const [recording] = await db.select().from(recordings).where(eq(recordings.id, id));
+    return recording;
   }
 
   async createRecording(insertRecording: InsertRecording): Promise<Recording> {
-    const id = this.currentId++;
-    const recording: Recording = {
-      ...insertRecording,
-      id,
-      createdAt: new Date(),
-    };
-    this.recordings.set(id, recording);
+    const [recording] = await db
+      .insert(recordings)
+      .values(insertRecording)
+      .returning();
     return recording;
   }
 
   async deleteRecording(id: number): Promise<void> {
-    this.recordings.delete(id);
+    await db.delete(recordings).where(eq(recordings.id, id));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
