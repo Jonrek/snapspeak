@@ -5,9 +5,12 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Recordings from "@/pages/recordings";
+import AuthPage from "@/pages/auth";
 import { Card } from "@/components/ui/card";
 import { Link } from "wouter";
 import { FileAudio, Camera } from "lucide-react";
+import { AuthProvider } from "@/hooks/use-auth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 function Navigation() {
   return (
@@ -15,13 +18,13 @@ function Navigation() {
       <Link href="/">
         <a className="flex flex-col items-center text-muted-foreground hover:text-primary">
           <Camera className="h-6 w-6" />
-          <span className="text-sm">New</span>
+          <span className="text-sm">جديد</span>
         </a>
       </Link>
       <Link href="/recordings">
         <a className="flex flex-col items-center text-muted-foreground hover:text-primary">
           <FileAudio className="h-6 w-6" />
-          <span className="text-sm">Recordings</span>
+          <span className="text-sm">التسجيلات</span>
         </a>
       </Link>
     </Card>
@@ -32,8 +35,9 @@ function Router() {
   return (
     <div className="min-h-screen pb-20">
       <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/recordings" component={Recordings} />
+        <Route path="/auth" component={AuthPage} />
+        <ProtectedRoute path="/" component={Home} />
+        <ProtectedRoute path="/recordings" component={Recordings} />
         <Route component={NotFound} />
       </Switch>
       <Navigation />
@@ -44,8 +48,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <AuthProvider>
+        <Router />
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
