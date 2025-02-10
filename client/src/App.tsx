@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Recordings from "@/pages/recordings";
 import AuthPage from "@/pages/auth";
+import SplashScreen from "@/pages/splash";
 import { Card } from "@/components/ui/card";
 import { Link } from "wouter";
 import { FileAudio, Camera } from "lucide-react";
@@ -35,8 +36,9 @@ function Router() {
   return (
     <div className="min-h-screen pb-20">
       <Switch>
+        <Route path="/" component={SplashScreen} />
         <Route path="/auth" component={AuthPage} />
-        <ProtectedRoute path="/" component={Home} />
+        <ProtectedRoute path="/home" component={Home} />
         <ProtectedRoute path="/recordings" component={Recordings} />
         <Route component={NotFound} />
       </Switch>
