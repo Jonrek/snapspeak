@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertUserSchema } from "@shared/schema";
@@ -38,20 +39,23 @@ export default function AuthPage() {
 
   // Redirect if already logged in
   if (user) {
-    navigate("/");
+    navigate("/home");
     return null;
   }
 
   const form = useForm<InsertUser>({
     resolver: zodResolver(
       mode === "login"
-        ? insertUserSchema.pick({ username: true, password: true })
+        ? insertUserSchema.pick({ username: true, password: true, rememberMe: true })
         : insertUserSchema
     ),
     defaultValues: {
       username: "",
+      email: "",
       password: "",
+      confirmPassword: "",
       role: "student",
+      rememberMe: false,
     },
   });
 
@@ -60,6 +64,7 @@ export default function AuthPage() {
       await loginMutation.mutateAsync({
         username: data.username,
         password: data.password,
+        rememberMe: data.rememberMe,
       });
     } else {
       await registerMutation.mutateAsync(data);
@@ -101,6 +106,23 @@ export default function AuthPage() {
                       </FormItem>
                     )}
                   />
+
+                  {mode === "register" && (
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-zinc-100">البريد الإلكتروني</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="email" className="bg-zinc-900/50 border-zinc-800 text-zinc-100" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
                   <FormField
                     control={form.control}
                     name="password"
@@ -114,6 +136,23 @@ export default function AuthPage() {
                       </FormItem>
                     )}
                   />
+
+                  {mode === "register" && (
+                    <FormField
+                      control={form.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-zinc-100">تأكيد كلمة المرور</FormLabel>
+                          <FormControl>
+                            <Input type="password" {...field} className="bg-zinc-900/50 border-zinc-800 text-zinc-100" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
                   {mode === "register" && (
                     <FormField
                       control={form.control}
@@ -140,6 +179,26 @@ export default function AuthPage() {
                       )}
                     />
                   )}
+
+                  <FormField
+                    control={form.control}
+                    name="rememberMe"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-3 space-y-0 rtl:space-x-reverse">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-medium leading-none text-zinc-100">
+                          تذكرني
+                        </FormLabel>
+                      </FormItem>
+                    )}
+                  />
+
                   <Button
                     type="submit"
                     className="w-full bg-gradient-to-r from-primary to-orange-500 hover:from-primary/90 hover:to-orange-500/90"
@@ -170,30 +229,25 @@ export default function AuthPage() {
           transition={{ duration: 0.5 }}
           className="hidden lg:block relative"
         >
-          {/* Hero Section with SVG Illustration */}
           <div className="relative z-10">
-            {/* Book and Headphones Illustration */}
             <div className="absolute inset-0 flex items-center justify-center">
               <svg
                 viewBox="0 0 400 400"
                 className="w-96 h-96 opacity-20"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                {/* Book */}
                 <path
                   d="M100 100 L300 100 L300 300 L100 300 Z"
                   fill="none"
                   stroke="url(#grad1)"
                   strokeWidth="4"
                 />
-                {/* Pages */}
                 <path
                   d="M150 120 L250 120 M150 140 L250 140 M150 160 L250 160"
                   stroke="url(#grad1)"
                   strokeWidth="2"
                   opacity="0.5"
                 />
-                {/* Headphones */}
                 <path
                   d="M80 200 Q200 50 320 200"
                   fill="none"
@@ -203,7 +257,6 @@ export default function AuthPage() {
                 <circle cx="80" cy="200" r="20" fill="url(#grad2)" />
                 <circle cx="320" cy="200" r="20" fill="url(#grad2)" />
 
-                {/* Gradients */}
                 <defs>
                   <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="hsl(24 95% 50%)" />
@@ -217,7 +270,6 @@ export default function AuthPage() {
               </svg>
             </div>
 
-            {/* Text Content */}
             <div className="text-center space-y-6 relative z-20">
               <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent">
                 مرحباً بك في SnapSpeak
@@ -228,7 +280,6 @@ export default function AuthPage() {
               </p>
             </div>
 
-            {/* Decorative Background Elements */}
             <div className="absolute inset-0 -z-10">
               <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
               <div className="absolute bottom-0 right-0 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl" />

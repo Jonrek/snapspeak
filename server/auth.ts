@@ -30,18 +30,21 @@ async function comparePasswords(supplied: string, stored: string) {
 
 export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.REPL_ID!,
+    secret: process.env.REPL_ID!, // Using REPL_ID as a secure secret
     resave: false,
     saveUninitialized: false,
     store: storage.sessionStore,
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      secure: app.get("env") === "production", // Use secure cookies in production
+      httpOnly: true, // Prevent XSS attacks
+      sameSite: "lax", // CSRF protection
     },
+    name: "snapspeak.sid", // Custom session ID name for better security
   };
 
   if (app.get("env") === "production") {
     app.set("trust proxy", 1);
-    sessionSettings.cookie!.secure = true;
   }
 
   app.use(session(sessionSettings));
@@ -101,6 +104,13 @@ export function setupAuth(app: Express) {
       }
       req.login(user, (err) => {
         if (err) return next(err);
+        if (req.body.rememberMe) {
+          // If remember me is checked, set a longer session
+          req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
+        } else {
+          // Otherwise use a session cookie that expires when browser closes
+          req.session.cookie.expires = undefined;
+        }
         res.json(user);
       });
     })(req, res, next);
